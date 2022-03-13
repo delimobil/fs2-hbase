@@ -5,7 +5,7 @@ import cats.effect.Sync
 import cats.effect.kernel.Async
 import cats.effect.syntax.temporal._
 import org.apache.hadoop.conf
-import org.apache.hadoop.hbase.client
+import org.apache.hadoop.hbase
 import ru.delimobil.fs2hbase.client.HBaseClientConnection
 import ru.delimobil.fs2hbase.client.TimeoutConnection
 import ru.delimobil.fs2hbase.model.Fs2HBaseConfig
@@ -32,7 +32,7 @@ object ConnectionResource {
   private def connectionUnsafe(
       config: Fs2HBaseConfig,
       extraConfig: Map[String, String]
-  ): client.Connection = {
+  ): hbase.client.Connection = {
     val hbaseConfig = new conf.Configuration()
     hbaseConfig.set("hbase.zookeeper.quorum", config.zooKeeperEnsemble.toList.mkString(","))
     hbaseConfig.set("hbase.zookeeper.property.clientPort", config.port.toString)
@@ -43,6 +43,6 @@ object ConnectionResource {
     hbaseConfig.set("hbase.client.scanner.timeout.period", config.scanTimeout.toString)
     hbaseConfig.set("hbase.cells.scanned.per.heartbeat.check", config.cellsPerHeartbeat.toString)
     extraConfig.foreach { case (key, value) => hbaseConfig.set(key, value) }
-    client.ConnectionFactory.createConnection(hbaseConfig)
+    hbase.client.ConnectionFactory.createConnection(hbaseConfig)
   }
 }

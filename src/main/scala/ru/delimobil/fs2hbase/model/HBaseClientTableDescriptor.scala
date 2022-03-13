@@ -31,7 +31,7 @@ object HBaseClientTableDescriptor {
     HBaseClientTableName(name).map(new HBaseClientTableDescriptor(_, columnFamilies))
 
   private def apply(
-    tableName: HBaseClientTableName,
-    columnFamilies: NonEmptyList[HBaseColumnFamily]
+      tableName: HBaseClientTableName,
+      columnFamilies: NonEmptyList[HBaseColumnFamily]
   ) = new HBaseClientTableDescriptor(tableName, columnFamilies)
 }

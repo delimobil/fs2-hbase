@@ -4,14 +4,14 @@ import cats.effect.Async
 import cats.effect.Resource
 import cats.effect.Sync
 import cats.effect.std.Semaphore
-import org.apache.hadoop.hbase.client
+import org.apache.hadoop.hbase
 import ru.delimobil.fs2hbase.api.Admin
 import ru.delimobil.fs2hbase.api.Connection
 import ru.delimobil.fs2hbase.api.Table
 import ru.delimobil.fs2hbase.model.HBaseClientTableName
 
 final class HBaseClientConnection[F[_]: Async](
-    connection: client.Connection,
+    connection: hbase.client.Connection,
     chunkSize: Int = 512
 ) extends Connection[F] {
 

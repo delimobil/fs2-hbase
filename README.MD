@@ -7,7 +7,7 @@ A small cats-effect wrapper around hbase java client.
 
 ## Usage
 
-fs2-hbase is cross built for `scala "2.12.15" | "2.13.8" | "3.1.1"`
+fs2-hbase is cross built for `scala "2.13.8" | "3.1.1"`
 
 To use add this instruction to your build.sbt:
 ```sbt
