@@ -15,7 +15,24 @@ import scala.concurrent.duration._
 
 object ExampleApp extends IOApp {
 
-  // test:runMain fs2hbase.ExampleApp 127.0.0.1 2181
+  /* open test/resources folder, where hbase-site.xml is located
+    launch HBase with docker:
+    id=$( \
+      docker run --name=hbase-docker -h hbase-docker -d --rm \
+        -p 16030:16030 \
+        -p 16010:16010 \
+        -p 16000:16000 \
+        -p 16020:16020 \
+        -p 9095:9095 \
+        -p 9090:9090 \
+        -p 8085:8085 \
+        -p 8080:8080 \
+        -p 2181:2181 \
+        -v $PWD/hbase-site.xml:/opt/hbase/conf/hbase-site.xml \
+        dajobe/hbase \
+    )
+   test:runMain fs2hbase.ExampleApp 127.0.0.1 2181
+   */
   override def run(args: List[String]): IO[ExitCode] =
     args match {
       case host :: port :: Nil => doRun(host, port.toInt)
