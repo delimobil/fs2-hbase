@@ -20,4 +20,7 @@ final class TimeoutConnection[F[_]: Temporal](
 
   def getTable(tableName: HBaseClientTableName): Resource[F, Table[F]] =
     delegatee.getTable(tableName).map(new TimeoutTable(_, timeout)).timeoutAndForget(timeout)
+
+  def isClosed: F[Boolean] =
+    delegatee.isClosed.timeoutAndForget(timeout)
 }

@@ -12,5 +12,7 @@ final class BooleanComparator(point: Boolean) extends ByteArrayComparable(Bytes.
 }
 
 object BooleanComparator {
-  def parseFrom(bytes: Array[Byte]): BooleanComparator = new BooleanComparator(Bytes.toBoolean(bytes))
+  def parseFrom(bytes: Array[Byte]): BooleanComparator = new BooleanComparator(
+    Bytes.toBoolean(bytes)
+  )
 }

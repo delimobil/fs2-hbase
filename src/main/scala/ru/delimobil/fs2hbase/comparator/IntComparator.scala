@@ -7,9 +7,8 @@ final class IntComparator(point: Int) extends ByteArrayComparable(Bytes.toBytes(
 
   def toByteArray: Array[Byte] = getValue
 
-  def compareTo(value: Array[Byte], offset: Int, length: Int): Int = {
+  def compareTo(value: Array[Byte], offset: Int, length: Int): Int =
     java.lang.Integer.compare(point, Bytes.toInt(value, offset, length))
-  }
 }
 
 object IntComparator {
