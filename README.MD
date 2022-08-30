@@ -1,7 +1,7 @@
 fs2-hbase
 =============
 
-[![Latest version](https://img.shields.io/badge/fs2--hbase-0.1.0--RC4-orange)](https://github.com/delimobil/fs2-hbase)
+[![Latest version](https://img.shields.io/badge/fs2--hbase-0.1.0--RC5-orange)](https://github.com/delimobil/fs2-hbase)
 
 A small cats-effect wrapper around hbase java client.
 
