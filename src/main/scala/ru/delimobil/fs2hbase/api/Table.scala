@@ -11,5 +11,7 @@ trait Table[F[_]] {
 
   def put[V](values: List[V])(implicit encoder: Encoder[V]): F[Unit]
 
+  def getScannerAction[V](scan: client.Scan)(implicit decoder: Decoder[V]): F[Stream[F, V]]
+
   def getScanner[V](scan: client.Scan)(implicit decoder: Decoder[V]): Stream[F, V]
 }

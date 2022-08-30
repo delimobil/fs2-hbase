@@ -23,15 +23,14 @@ private[fs2hbase] final class HbaseClientTable[F[_]: Sync](
   def put[V](values: List[V])(implicit encoder: Encoder[V]): F[Unit] =
     withPermit(table.put(values.map(encoder.encode).asJava))
 
-  def getScanner[V](scan: client.Scan)(implicit decoder: Decoder[V]): Stream[F, V] = {
-    val action =
-      withPermit(table.getScanner(scan)).map { resultScanner =>
-        val stream = Stream.fromBlockingIterator(resultScanner.iterator().asScala, chunkSize)
-        stream.map(result => decoder.decode(result))
-      }
+  def getScannerAction[V](scan: client.Scan)(implicit decoder: Decoder[V]): F[Stream[F, V]] =
+    withPermit(table.getScanner(scan)).map { resultScanner =>
+      val stream = Stream.fromBlockingIterator(resultScanner.iterator().asScala, chunkSize)
+      stream.map(result => decoder.decode(result))
+    }
 
-    Stream.force(action)
-  }
+  def getScanner[V](scan: client.Scan)(implicit decoder: Decoder[V]): Stream[F, V] =
+    Stream.force(getScannerAction(scan))
 
   private def withPermit[V](thunk: => V): F[V] =
     semaphore.permit.use(_ => Sync[F].blocking(thunk))
