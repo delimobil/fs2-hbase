@@ -11,7 +11,7 @@ fs2-hbase is cross built for `scala "2.13" | "3.1"`
 
 To use add this instruction to your build.sbt:
 ```sbt
-libraryDependencies += "ru.delimobil" %% "fs2-hbase" % "0.1.0-RC4"
+libraryDependencies += "ru.delimobil" %% "fs2-hbase" % "0.1.0-RC5"
 ```
 
 

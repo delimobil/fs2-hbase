@@ -25,7 +25,9 @@ private[fs2hbase] final class HbaseClientTable[F[_]: Sync](
 
   def getScannerAction[V](scan: client.Scan)(implicit decoder: Decoder[V]): F[Stream[F, V]] =
     withPermit(table.getScanner(scan)).map { resultScanner =>
-      val stream = Stream.fromBlockingIterator(resultScanner.iterator().asScala, chunkSize)
+      val batch = scan.getBatch
+      val batchOrChunkSize = if (batch == -1) chunkSize else batch
+      val stream = Stream.fromBlockingIterator(resultScanner.iterator().asScala, batchOrChunkSize)
       stream.map(result => decoder.decode(result))
     }
 
