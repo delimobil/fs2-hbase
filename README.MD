@@ -1,17 +1,17 @@
 fs2-hbase
 =============
 
-[![Latest version](https://img.shields.io/badge/fs2--hbase-0.1.0--rc1-orange)](https://github.com/delimobil/fs2-hbase)
+[![Latest version](https://img.shields.io/badge/fs2--hbase-0.1.0--RC4-orange)](https://github.com/delimobil/fs2-hbase)
 
 A small cats-effect wrapper around hbase java client.
 
 ## Usage
 
-fs2-hbase is cross built for `scala "2.13.8" | "3.1.1"`
+fs2-hbase is cross built for `scala "2.13" | "3.1"`
 
 To use add this instruction to your build.sbt:
 ```sbt
-libraryDependencies += "ru.delimobil" %% "fs2-hbase" % "0.1.0-rc1"
+libraryDependencies += "ru.delimobil" %% "fs2-hbase" % "0.1.0-RC4"
 ```
 
 
