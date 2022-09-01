@@ -16,8 +16,7 @@ import scala.jdk.CollectionConverters._
 
 private[fs2hbase] final class HbaseClientTable[F[_]: Sync](
     semaphore: Semaphore[F],
-    table: client.Table,
-    chunkSize: Int
+    table: client.Table
 ) extends Table[F] {
 
   def put[V](value: V)(implicit encoder: Encoder[V]): F[Unit] =
@@ -32,25 +31,20 @@ private[fs2hbase] final class HbaseClientTable[F[_]: Sync](
       else decoder.decode(result).some
     }
 
-  def getScannerAction[V](scan: client.Scan)(implicit decoder: Decoder[V]): F[Stream[F, V]] =
+  def getScannerAction[V](scan: client.Scan, chunkSize: Int)(implicit decoder: Decoder[V]): F[Stream[F, V]] =
     withPermit(table.getScanner(scan)).flatMap { resultScanner =>
       val iterator = resultScanner.iterator().asScala
-      val stream = Stream.fromBlockingIterator(iterator, getBatch(scan))
+      val stream = Stream.fromBlockingIterator(iterator, chunkSize)
       triggerUpload(iterator).as(stream.map(result => decoder.decode(result)))
     }
 
-  def getScanner[V](scan: client.Scan)(implicit decoder: Decoder[V]): Stream[F, V] = {
+  def getScanner[V](scan: client.Scan, chunkSize: Int)(implicit decoder: Decoder[V]): Stream[F, V] = {
     val action = withPermit(table.getScanner(scan)).map { resultScanner =>
       val iterator = resultScanner.iterator().asScala
-      val stream = Stream.fromBlockingIterator(iterator, getBatch(scan))
+      val stream = Stream.fromBlockingIterator(iterator, chunkSize)
       stream.map(result => decoder.decode(result))
     }
     Stream.force(action)
-  }
-
-  private def getBatch(scan: client.Scan): Int = {
-    val batch = scan.getBatch
-    if (batch == -1) chunkSize else batch
   }
 
   private def withPermit[V](thunk: => V): F[V] =

@@ -14,7 +14,7 @@ trait Table[F[_]] {
 
   def get[V](request: Get)(implicit decoder: Decoder[V]): F[Option[V]]
 
-  def getScannerAction[V](scan: client.Scan)(implicit decoder: Decoder[V]): F[Stream[F, V]]
+  def getScannerAction[V](scan: client.Scan, chunkSize: Int = 8)(implicit decoder: Decoder[V]): F[Stream[F, V]]
 
-  def getScanner[V](scan: client.Scan)(implicit decoder: Decoder[V]): Stream[F, V]
+  def getScanner[V](scan: client.Scan, chunkSize: Int = 8)(implicit decoder: Decoder[V]): Stream[F, V]
 }

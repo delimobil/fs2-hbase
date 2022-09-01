@@ -28,7 +28,7 @@ final class TimeoutTable[F[_]: Temporal](
   def get[V](request: Get)(implicit decoder: Decoder[V]): F[Option[V]] =
     delegatee.get(request).timeoutAndForget(timeout)
 
-  def getScannerAction[V](scan: Scan)(implicit decoder: Decoder[V]): F[fs2.Stream[F, V]] =
+  def getScannerAction[V](scan: Scan, chunkSize: Int)(implicit decoder: Decoder[V]): F[Stream[F, V]] =
     delegatee.getScannerAction(scan).timeoutAndForget(timeout).map { stream =>
       def go(timedPull: Pull.Timed[F, V]): Pull[F, V, Unit] =
         timedPull.timeout(timeout) >>
@@ -41,6 +41,6 @@ final class TimeoutTable[F[_]: Temporal](
       stream.pull.timed(go).stream
     }
 
-  def getScanner[V](scan: Scan)(implicit decoder: Decoder[V]): fs2.Stream[F, V] =
+  def getScanner[V](scan: Scan, chunkSize: Int)(implicit decoder: Decoder[V]): Stream[F, V] =
     Stream.force(getScannerAction(scan))
 }
