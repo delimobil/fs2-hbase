@@ -22,9 +22,6 @@ final class HBaseClientConnection[F[_]: Async](
       new HbaseClientTable(semaphore, table)
     }
 
-  def isClosed: F[Boolean] =
-    Sync[F].blocking(connection.isClosed)
-
   private def create[A <: AutoCloseable, V](
       thunk: => A
   )(f: (Semaphore[F], A) => V): Resource[F, V] =
