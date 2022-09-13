@@ -8,6 +8,4 @@ trait Connection[F[_]] {
   def getAdmin: Resource[F, Admin[F]]
 
   def getTable(tableName: HBaseClientTableName): Resource[F, Table[F]]
-
-  def isClosed: F[Boolean]
 }
