@@ -2,9 +2,8 @@ package ru.delimobil.fs2hbase.client
 
 import cats.effect.kernel.Temporal
 import cats.effect.syntax.temporal._
-import cats.syntax.functor._
 import fs2.Pull
-import fs2.Stream
+import org.apache.hadoop.hbase.client
 import org.apache.hadoop.hbase.client.Get
 import org.apache.hadoop.hbase.client.Scan
 import ru.delimobil.fs2hbase.api.Table
@@ -28,19 +27,18 @@ final class TimeoutTable[F[_]: Temporal](
   def get[V](request: Get)(implicit decoder: Decoder[V]): F[Option[V]] =
     delegatee.get(request).timeoutAndForget(timeout)
 
-  def getScannerAction[V](scan: Scan, chunkSize: Int)(implicit decoder: Decoder[V]): F[Stream[F, V]] =
-    delegatee.getScannerAction(scan).timeoutAndForget(timeout).map { stream =>
-      def go(timedPull: Pull.Timed[F, V]): Pull[F, V, Unit] =
-        timedPull.timeout(timeout) >>
-          timedPull.uncons.flatMap {
-            case Some((Right(elems), next)) => Pull.output(elems) >> go(next)
-            case Some((Left(_), _)) => Pull.raiseError(new TimeoutException(timeout.toString))
-            case None               => Pull.done
-          }
+  def getScanner[V](scan: Scan)(implicit decoder: Decoder[V]): fs2.Stream[F, V] = {
+    def go(timedPull: Pull.Timed[F, V]): Pull[F, V, Unit] =
+      timedPull.timeout(timeout) >>
+        timedPull.uncons.flatMap {
+          case Some((Right(elems), next)) => Pull.output(elems) >> go(next)
+          case Some((Left(_), _))         => Pull.raiseError(new TimeoutException(timeout.toString))
+          case None                       => Pull.done
+        }
 
-      stream.pull.timed(go).stream
-    }
+    delegatee.getScanner(scan).pull.timed(go).stream
+  }
 
-  def getScanner[V](scan: Scan, chunkSize: Int)(implicit decoder: Decoder[V]): Stream[F, V] =
-    Stream.force(getScannerAction(scan))
+  def delay[V](f: client.Table => V): F[V] =
+    delegatee.delay(f).timeoutAndForget(timeout)
 }
