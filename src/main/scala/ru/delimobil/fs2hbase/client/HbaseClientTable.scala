@@ -2,7 +2,6 @@ package ru.delimobil.fs2hbase.client
 
 import cats.effect.Sync
 import cats.effect.std.Semaphore
-import cats.syntax.flatMap._
 import cats.syntax.functor._
 import cats.syntax.option._
 import fs2.Stream
@@ -16,7 +15,8 @@ import scala.jdk.CollectionConverters._
 
 private[fs2hbase] final class HbaseClientTable[F[_]: Sync](
     semaphore: Semaphore[F],
-    table: client.Table
+    table: client.Table,
+    chunkSize: Int
 ) extends Table[F] {
 
   def put[V](value: V)(implicit encoder: Encoder[V]): F[Unit] =
@@ -31,14 +31,7 @@ private[fs2hbase] final class HbaseClientTable[F[_]: Sync](
       else decoder.decode(result).some
     }
 
-  def getScannerAction[V](scan: client.Scan, chunkSize: Int)(implicit decoder: Decoder[V]): F[Stream[F, V]] =
-    withPermit(table.getScanner(scan)).flatMap { resultScanner =>
-      val iterator = resultScanner.iterator().asScala
-      val stream = Stream.fromBlockingIterator(iterator, chunkSize)
-      triggerUpload(iterator).as(stream.map(result => decoder.decode(result)))
-    }
-
-  def getScanner[V](scan: client.Scan, chunkSize: Int)(implicit decoder: Decoder[V]): Stream[F, V] = {
+  def getScanner[V](scan: client.Scan)(implicit decoder: Decoder[V]): Stream[F, V] = {
     val action = withPermit(table.getScanner(scan)).map { resultScanner =>
       val iterator = resultScanner.iterator().asScala
       val stream = Stream.fromBlockingIterator(iterator, chunkSize)
@@ -47,9 +40,9 @@ private[fs2hbase] final class HbaseClientTable[F[_]: Sync](
     Stream.force(action)
   }
 
+  def delay[V](f: client.Table => V): F[V] =
+    withPermit(f(table))
+
   private def withPermit[V](thunk: => V): F[V] =
     semaphore.permit.use(_ => Sync[F].blocking(thunk))
-
-  private def triggerUpload[V](iterator: Iterator[V]): F[Unit] =
-    Sync[F].blocking(iterator.hasNext).void
 }

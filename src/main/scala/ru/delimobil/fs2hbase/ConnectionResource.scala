@@ -36,12 +36,9 @@ object ConnectionResource {
     val hbaseConfig = new conf.Configuration()
     hbaseConfig.set("hbase.zookeeper.quorum", config.zooKeeperEnsemble.toList.mkString(","))
     hbaseConfig.set("hbase.zookeeper.property.clientPort", config.port.toString)
-    hbaseConfig.set("hbase.column.max.version", config.columnMaxVersion.toString)
-    hbaseConfig.set("hbase.client.scanner.max.result.size", config.scannerIterationLength.toString)
     hbaseConfig.set("hbase.client.retries.number", config.retries.toString)
     hbaseConfig.set("hbase.rpc.timeout", config.rpcTimeout.toString)
     hbaseConfig.set("hbase.client.scanner.timeout.period", config.scanTimeout.toString)
-    hbaseConfig.set("hbase.cells.scanned.per.heartbeat.check", config.cellsPerHeartbeat.toString)
     extraConfig.foreach { case (key, value) => hbaseConfig.set(key, value) }
     hbase.client.ConnectionFactory.createConnection(hbaseConfig)
   }

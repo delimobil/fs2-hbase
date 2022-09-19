@@ -11,7 +11,8 @@ import ru.delimobil.fs2hbase.api.Table
 import ru.delimobil.fs2hbase.model.HBaseClientTableName
 
 final class HBaseClientConnection[F[_]: Async](
-    connection: hbase.client.Connection
+    connection: hbase.client.Connection,
+    chunkSize: Int = 64
 ) extends Connection[F] {
 
   def getAdmin: Resource[F, Admin[F]] =
@@ -19,7 +20,7 @@ final class HBaseClientConnection[F[_]: Async](
 
   def getTable(tableName: HBaseClientTableName): Resource[F, Table[F]] =
     create(connection.getTable(tableName.raw)) { (semaphore, table) =>
-      new HbaseClientTable(semaphore, table)
+      new HbaseClientTable(semaphore, table, chunkSize)
     }
 
   private def create[A <: AutoCloseable, V](
