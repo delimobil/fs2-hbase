@@ -6,6 +6,7 @@ import cats.effect.kernel.Async
 import cats.effect.syntax.temporal._
 import org.apache.hadoop.conf
 import org.apache.hadoop.hbase
+import org.apache.hadoop.hbase.HConstants
 import ru.delimobil.fs2hbase.client.HBaseClientConnection
 import ru.delimobil.fs2hbase.client.TimeoutConnection
 import ru.delimobil.fs2hbase.model.Fs2HBaseConfig
@@ -34,11 +35,11 @@ object ConnectionResource {
       extraConfig: Map[String, String]
   ): hbase.client.Connection = {
     val hbaseConfig = new conf.Configuration()
-    hbaseConfig.set("hbase.zookeeper.quorum", config.zooKeeperEnsemble.toList.mkString(","))
+    hbaseConfig.set(HConstants.ZOOKEEPER_QUORUM, config.zooKeeperEnsemble.toList.mkString(","))
     hbaseConfig.set("hbase.zookeeper.property.clientPort", config.port.toString)
-    hbaseConfig.set("hbase.client.retries.number", config.retries.toString)
-    hbaseConfig.set("hbase.rpc.timeout", config.rpcTimeout.toString)
-    hbaseConfig.set("hbase.client.scanner.timeout.period", config.scanTimeout.toString)
+    hbaseConfig.set(HConstants.HBASE_CLIENT_RETRIES_NUMBER, config.retries.toString)
+    hbaseConfig.set(HConstants.HBASE_RPC_TIMEOUT_KEY, config.rpcTimeout.toString)
+    hbaseConfig.set(HConstants.HBASE_CLIENT_SCANNER_TIMEOUT_PERIOD, config.scanTimeout.toString)
     extraConfig.foreach { case (key, value) => hbaseConfig.set(key, value) }
     hbase.client.ConnectionFactory.createConnection(hbaseConfig)
   }
