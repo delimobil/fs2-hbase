@@ -6,17 +6,21 @@ import org.apache.hadoop.hbase.filter.FilterBase
 
 final class ExceedStopFilter(stopRowKey: Array[Byte]) extends FilterBase {
 
-  var done = false
+  private var cnt = 0
 
-  override def filterRowKey(firstRowCell: Cell): Boolean = {
-    val cmp = CellComparator.getInstance.compareRows(firstRowCell, stopRowKey, 0, stopRowKey.length)
-    done = if (reversed) cmp <= 0 else cmp >= 0
-    false
-  }
+  override def filterRowKey(firstRowCell: Cell): Boolean =
+    filterAllRemaining() || {
+      val cmp = CellComparator.getInstance.compareRows(firstRowCell, stopRowKey, 0, stopRowKey.length)
+      val bool = if(reversed) cmp <= 0 else cmp >= 0
+      if (bool) cnt += 1
+      done
+    }
 
   override def filterAllRemaining(): Boolean = done
 
   override def toByteArray: Array[Byte] = stopRowKey
+
+  private def done: Boolean = cnt > 1
 }
 
 object ExceedStopFilter {
