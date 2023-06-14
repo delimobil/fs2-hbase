@@ -1,5 +1,6 @@
 package ru.delimobil.fs2hbase.client
 
+import cats.effect.Resource
 import cats.effect.Sync
 import cats.effect.std.Semaphore
 import cats.syntax.functor._
@@ -32,12 +33,12 @@ private[fs2hbase] final class HbaseClientTable[F[_]: Sync](
     }
 
   def getScanner[V](scan: client.Scan)(implicit decoder: Decoder[V]): Stream[F, V] = {
-    val action = withPermit(table.getScanner(scan)).map { resultScanner =>
+    val resource = Resource.fromAutoCloseable(withPermit(table.getScanner(scan)))
+    Stream.resource(resource).flatMap { resultScanner =>
       val iterator = resultScanner.iterator().asScala
       val stream = Stream.fromBlockingIterator(iterator, chunkSize)
       stream.map(result => decoder.decode(result))
     }
-    Stream.force(action)
   }
 
   def delay[V](f: client.Table => V): F[V] =
