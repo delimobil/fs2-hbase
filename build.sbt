@@ -1,10 +1,10 @@
 ThisBuild / organization := "ru.delimobil"
-ThisBuild / scalaVersion := "2.13.8"
+ThisBuild / scalaVersion := "2.13.12"
 ThisBuild / crossScalaVersions += "3.1.1"
 
 val kindProjectorVersion = "0.13.2"
-val fs2Version = "3.2.4"
-val hbaseClientVersion = "2.4.1"
+val fs2Version = "3.9.4"
+val hbaseClientVersion = "2.5.7"
 
 val publishSettings = Seq(
   // sonatype config
@@ -27,7 +27,7 @@ val publishSettings = Seq(
 )
 
 val commonSettings = Seq(
-  version := "0.1.0-RC10",
+  version := "0.1.0-RC11",
   scalacOptions ++= {
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((3, _)) =>
@@ -61,6 +61,6 @@ val root = (project in file("."))
     name := "fs2-hbase",
     libraryDependencies ++= Seq(
       "co.fs2" %% "fs2-core" % fs2Version,
-      "org.apache.hbase" % "hbase-client" % hbaseClientVersion
+      "org.apache.hbase" % "hbase-client" % hbaseClientVersion,
     )
   )
