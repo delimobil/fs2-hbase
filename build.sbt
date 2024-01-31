@@ -2,11 +2,14 @@ ThisBuild / organization := "ru.delimobil"
 ThisBuild / scalaVersion := "2.13.12"
 ThisBuild / crossScalaVersions += "3.1.1"
 
+val libVersion = "0.1.0-RC12"
+
 val kindProjectorVersion = "0.13.2"
 val fs2Version = "3.9.4"
 val hbaseClientVersion = "2.5.7"
 
 val publishSettings = Seq(
+  version := libVersion,
   // sonatype config
   publishTo := sonatypePublishToBundle.value,
   ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org",
@@ -27,7 +30,6 @@ val publishSettings = Seq(
 )
 
 val commonSettings = Seq(
-  version := "0.1.0-RC11",
   scalacOptions ++= {
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((3, _)) =>
