@@ -12,6 +12,9 @@ final class HBaseClientAdmin[F[_]: Sync](
     admin: client.Admin
 ) extends Admin[F] {
 
+  def delay[V](f: client.Admin => V): F[V] =
+    withPermit(f(admin))
+
   def tableExists(tableName: HBaseClientTableName): F[Boolean] =
     withPermit(admin.tableExists(tableName.raw))
 

@@ -2,7 +2,7 @@ ThisBuild / organization := "ru.delimobil"
 ThisBuild / scalaVersion := "2.13.12"
 ThisBuild / crossScalaVersions += "3.1.1"
 
-val libVersion = "0.1.0-RC12"
+val libVersion = "0.1.0-RC13-SNAPSHOT"
 
 val kindProjectorVersion = "0.13.2"
 val fs2Version = "3.9.4"
